@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css"
+          integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M"
+          crossorigin="anonymous">
+    <title>Blog Demo</title>
+</head>
+<body>
+<header id="main-header" class="bg-success text-white p-4 mb-3">
+    <div class="container">
+        <h1 id="header-title">Posts</h1>
+        <tr id="button-group">
+            <a href="login" id="login-btn" class="btn btn-dark" >로그인</a>
+            <a href="write" id="signup-btn" class="btn btn-dark" >식당 등록</a>
+        </tr>
+    </div>
+
+</header>
+<div class="container">
+    <div id="main" class="card card-body">
+        <ul id="post-list" class="list-group"></ul>
+    </div>
+</div>
+<!--<button id="button">Load Posts</button>-->
+<br><br>
+<div id="text"></div>
+
+<script>
+
+    class UI {
+        static displayPosts(p) {
+            const posts = JSON.parse(p);
+
+            posts.forEach((post) => UI.addPostToList(post));
+        }
+
+        static addPostToList(post) {
+            const list = document.querySelector('#post-list');
+
+            const row = document.createElement('li');
+
+            row.className = 'list-group-item';
+
+            row.innerHTML = `<h3>${post.title}</h3>
+                <p>${post.body}</p>
+                <I>${post.creator.name}<br>
+                ${UI.dateEncoder(post.dateCreated)}</I>`;
+
+            list.appendChild(row);
+
+        }
+
+        static dateEncoder(date) {
+            let dateEncoded = new Date(date)
+
+            return dateEncoded.toLocaleDateString() + " " + dateEncoded.toLocaleTimeString();
+
+        }
+    }
+
+    loadPosts();
+
+    console.log("hello" + document.querySelector("#main-header").innerHTML);
+
+    if(sessionStorage.getItem('status') == 'loggedIn') {
+
+        document.querySelector("#main-header").innerHTML =
+            `<div class="container">
+                 <h1 id="header-title">Posts</h1>
+                 <tr id="button-group">
+                 <button id="logout-btn" class="btn btn-dark" >Logout</button>
+                 <a href="mypage" id="mypage-btn" class="btn btn-dark" >My Page</a>
+                 <a href="write" id="write-btn" class="btn btn-dark" >Write</a>
+                 </tr>
+             </div>`;
+
+        document.querySelector('#logout-btn').addEventListener('click',loggedOut);
+
+        function loggedOut(e) {
+            window.sessionStorage.setItem('status', null);
+            window.sessionStorage.setItem('username',null);
+
+            let xhr = new XMLHttpRequest();
+
+            xhr.open('POST', 'http://192.168.0.52:8080/logout', true);
+
+            xhr.onload = function() {
+                if(this.status == 200) {
+                    console.log(this.responseText);
+                }
+            }
+
+            xhr.onerror = function() {
+                console.log('Request Error...');
+            }
+            // Sends request
+            xhr.send();
+
+            document.location.href = "/";
+        }
+    }
+
+
+
+
+
+    // Load posts from DB with vanilla js ajax
+    function loadPosts() {
+        let xhr = new XMLHttpRequest();
+
+        xhr.open('GET', 'http://192.168.0.52:8080/posts', true);
+
+        xhr.onload = function() {
+            if(this.status == 200) {
+                console.log(this.responseText);
+                UI.displayPosts(this.responseText);
+            }
+        }
+
+        xhr.onerror = function() {
+            console.log('Request Error...');
+        }
+        // Sends request
+        xhr.send();
+    }
+
+    // readyState Values
+    // 0: request not initialized
+    // 1: server connection established
+    // 2: request received
+    // 3: processing request
+    // 4: request finished and response is ready
+
+    // HTTP Statuses
+    // 200: "OK"
+    // 400: "Bad Request"
+    // 403: "Forbidden"
+    // 404: "Not Found"
+</script>
+</body>
+</html>

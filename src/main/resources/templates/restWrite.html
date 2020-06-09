@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css"
+          integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M"
+          crossorigin="anonymous">
+    <title>식당 등록</title>
+</head>
+<body>
+<header id="main-header" class="bg-success text-white p-4 mb-3">
+    <div class="container">
+        <h1 id="header-title"></h1>
+    </div>
+</header>
+<div class="container">
+    <div id="main" class="card card-body">
+        <form id="rest-write-form">
+            <div class="form-group">
+                <label for="name">식당이름:</label>
+                <input type="text" id="name" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="address">주소:</label>
+                <input type="text" id="address" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="phone">번호:</label>
+                <input type="text" id="phone" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="body">소개:</label>
+                <input type="text" id="body" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="genre">분류:</label>
+                <input type="text" id="genre" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="start-time">영업 시작 시간:</label>
+                <input type="text" id="start-time" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="end-time">영업 종료 시간:</label>
+                <input type="text" id="end-time" class="form-control">
+            </div>
+            <input type="submit" value="식당 등록" class="btn btn-primary btn-block">
+        </form>
+    </div>
+</div>
+
+<script>
+
+    class UI {
+        static showAlert(message, className) {
+            const div = document.createElement('div');
+            div.className = `alert alert-${className}`;
+            div.appendChild(document.createTextNode(message));
+            const container = document.querySelector('.container');
+            const form = document.querySelector('#rest-write-form');
+            container.insertBefore(div, form);
+            // Vanish in 3 seconds
+            setTimeout(() => document.querySelector('.alert').remove(),3000);
+        }
+    }
+
+
+    document.querySelector('#rest-write-form').addEventListener('submit', submitRest);
+
+    function submitRest(e) {
+
+        e.preventDefault();
+
+        let restInfo = {
+            "restName":document.querySelector('#name').value,
+            "address":document.querySelector('#address').value,
+            "phone":document.querySelector('#phone').value,
+            "body":document.querySelector('#body').value,
+            "genre":document.querySelector('#genre').value,
+            "startTime":document.querySelector('#start-time').value,
+            "endTime":document.querySelector('#end-time').value,
+            "rating": 0
+        };
+        // const id = document.querySelector('#id').value;
+        // const password = document.querySelector('#password').value;
+        // const passwordConfirmation = document.querySelector('#confirm').value;
+
+        console.log(restInfo);
+
+        if(restInfo.restName === '' || restInfo.address === '' || restInfo.body === '', restInfo.phone === ''
+        || restInfo.genre === '' || restInfo.startTime === '' || restInfo.endTime === '') {
+            UI.showAlert('빈칸을 모두 채워주세요', 'danger');
+            console.log(restInfo);
+        } else {
+
+            let xhr = new XMLHttpRequest();
+            xhr.open('POST', 'http://192.168.0.52:8080/restPost', true);
+
+            xhr.onload = function() {
+                if(this.status == 200) {
+                    console.log(this.responseText);
+                    //UI.displayPosts(this.responseText);
+                }
+            }
+
+            xhr.onerror = function() {
+                console.log('Request Error...');
+            }
+
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+            // userInfo가 JSON array로 send 되고있음 JSON object로 send하거나 controller에서 List<UserRegistration>으로 받기
+            // Sends request
+
+            console.log(restInfo);
+            xhr.send(JSON.stringify(restInfo));
+
+            alert("식당 등록 완료");
+
+            document.location.href = "/";
+
+        }
+
+    }
+
+
+</script>
+</body>
+</html>
